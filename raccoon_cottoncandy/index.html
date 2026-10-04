@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>솜사탕과 너구리들</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #e5e0d8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    /* 1000x1000 캔버스 컨테이너 */
+    #canvas-container {
+      position: relative;
+      width: 1000px;
+      height: 1000px;
+      max-width: 94vmin;
+      max-height: 94vmin;
+      aspect-ratio: 1 / 1;
+      background-color: #fbf7f0;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+      border-radius: 28px;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="canvas-container">
+  <canvas id="canvas" width="1000" height="1000"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+const WIDTH = 1000;
+const HEIGHT = 1000;
+
+// 선명한 핑크색
+const PINK_COLOR = '#FF6BA3';
+
+// 상태 관리
+let candies = [];
+let particles = [];
+let draggedCandy = null;
+let longPressTarget = null;
+let longPressStartTime = 0;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let isPressing = false;
+let globalTick = 0; // 바운스 및 애니메이션 주기 계산용
+
+// 1. 너구리 및 물웅덩이 설정
+const raccoons = [
+  {
+    type: 'black',
+    name: '검은 너구리',
+    x: 200,
+    y: 420,
+    baseX: 200,
+    baseY: 420,
+    bounceOffset: 0,
+    bounceSpeed: 0.06,
+    bouncePhase: 0,
+    size: 160,
+    bodyColor: '#3c3c40',
+    maskColor: '#1e1e22',
+    eyeColor: '#111111',
+    carryingCandy: null,
+    dissolveTimer: 0,
+    state: 'idle', // 'idle', 'carrying_to_water', 'washing_in_water', 'returning'
+    speed: 5.5 // 부담스럽지 않게 안정적인 속도로 완화
+  },
+  {
+    type: 'brown',
+    name: '갈색 너구리',
+    x: 200,
+    y: 750,
+    baseX: 200,
+    baseY: 750,
+    bounceOffset: 0,
+    bounceSpeed: 0.055,
+    bouncePhase: Math.PI * 0.5, // 엇박자로 귀엽게 통통 튐
+    size: 160,
+    bodyColor: '#8c5332',
+    maskColor: '#5a3118',
+    eyeColor: '#2b1408',
+    eatingCandy: null,
+    eatingProgress: 0,
+    state: 'idle' // 'idle', 'eating'
+  }
+];
+
+// 우측 대형 물웅덩이
+const pond = {
+  x: 770,
+  y: 600,
+  rx: 190,
+  ry: 230,
+  waveOffset: 0
+};
+
+// 2. 솜사탕 클래스
+class CottonCandy {
+  constructor(index, total = 7) {
+    this.index = index;
+    this.initialRadius = 42;
+    this.radius = this.initialRadius;
+    this.color = PINK_COLOR;
+    this.isMerged = false;
+    this.isDead = false;
+    this.alpha = 1;
+    this.spawnTarget(index, total);
+  }
+
+  spawnTarget(index, total) {
+    const spacing = 115;
+    const startX = WIDTH * 0.5 - ((total - 1) * spacing) / 2;
+    this.targetX = startX + index * spacing;
+    this.targetY = 120;
+    this.x = this.targetX;
+    this.y = this.targetY;
+    this.alpha = 1;
+    this.radius = this.initialRadius;
+  }
+
+  update() {
+    if (this.isDead) return;
+    // 드래그 중이 아니거나 특별한 상태가 아닐 때 원래 대기 위치로 복귀
+    if (this !== draggedCandy && !this.isMerged && this !== raccoons[0].carryingCandy && this !== raccoons[1].eatingCandy) {
+      this.x += (this.targetX - this.x) * 0.12;
+      this.y += (this.targetY - this.y) * 0.12;
+      this.radius += (this.initialRadius - this.radius) * 0.12;
+      this.alpha += (1 - this.alpha) * 0.12;
+    }
+  }
+
+  draw(context) {
+    if (this.isDead || this.alpha <= 0.01 || this.radius <= 1) return;
+    context.save();
+    context.globalAlpha = Math.max(0, Math.min(1, this.alpha));
+    context.translate(this.x, this.y);
+
+    // 막대기
+    context.beginPath();
+    context.strokeStyle = '#cbb39d';
+    context.lineWidth = Math.max(2, (this.radius / this.initialRadius) * 6);
+    context.lineCap = 'round';
+    context.moveTo(0, this.radius * 0.3);
+    context.lineTo(0, this.radius * 1.55);
+    context.stroke();
+
+    // 몽실몽실한 솜사탕 구름 덩어리
+    context.fillStyle = this.color;
+    const lobes = 6;
+    for (let i = 0; i < lobes; i++) {
+      const angle = (i * Math.PI * 2) / lobes;
+      const ox = Math.cos(angle) * (this.radius * 0.45);
+      const oy = Math.sin(angle) * (this.radius * 0.45);
+      context.beginPath();
+      context.arc(ox, oy, this.radius * 0.65, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    // 중앙 코어
+    context.beginPath();
+    context.arc(0, 0, this.radius * 0.6, 0, Math.PI * 2);
+    context.fill();
+
+    context.restore();
+  }
+}
+
+function initCandies() {
+  candies = [];
+  for (let i = 0; i < 7; i++) {
+    candies.push(new CottonCandy(i, 7));
+  }
+}
+initCandies();
+
+// 3. 파티클 이펙트
+class Particle {
+  constructor(x, y, color, type = 'pop') {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.type = type;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = type === 'pop' ? Math.random() * 11 + 4 : Math.random() * 2.5 + 0.8;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed - (type === 'melt' ? 0.8 : 0);
+    this.size = type === 'pop' ? Math.random() * 14 + 6 : Math.random() * 8 + 3;
+    this.alpha = 1;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha -= this.type === 'pop' ? 0.03 : 0.02;
+    this.size *= 0.96;
+  }
+
+  draw(context) {
+    if (this.alpha <= 0) return;
+    context.save();
+    context.globalAlpha = Math.max(0, this.alpha);
+    context.fillStyle = this.color;
+    context.beginPath();
+    context.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI * 2);
+    context.fill();
+    context.restore();
+  }
+}
+
+function createBurstParticles(x, y, count, baseColor = PINK_COLOR) {
+  for (let i = 0; i < count; i++) {
+    particles.push(new Particle(x, y, baseColor, 'pop'));
+  }
+}
+
+// 4. 물웅덩이 렌더링
+function drawPond(context) {
+  context.save();
+  context.translate(pond.x, pond.y);
+
+  // 그림자
+  context.beginPath();
+  context.ellipse(0, 16, pond.rx + 12, pond.ry + 10, 0, 0, Math.PI * 2);
+  context.fillStyle = '#bad4dd';
+  context.fill();
+
+  // 물 본체
+  context.beginPath();
+  context.ellipse(0, 0, pond.rx, pond.ry, 0, 0, Math.PI * 2);
+  context.fillStyle = '#7ac5df';
+  context.fill();
+
+  // 잔물결 하이라이트
+  pond.waveOffset += 0.035;
+  context.beginPath();
+  context.ellipse(Math.sin(pond.waveOffset) * 14 - 30, -20, pond.rx * 0.55, pond.ry * 0.35, -0.06, 0, Math.PI);
+  context.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+  context.lineWidth = 5;
+  context.stroke();
+
+  context.restore();
+}
+
+// 5. 너구리 렌더링 (통통 튀는 바운스 반영)
+function drawRaccoon(context, r) {
+  context.save();
+  // 기본 Y에 바운스 오프셋 적용
+  context.translate(r.x, r.y + r.bounceOffset);
+
+  const w = r.size;
+  const h = r.size * 0.9;
+  const topY = -h * 0.45;
+  const bottomY = h * 0.55;
+
+  // 귀
+  context.fillStyle = r.bodyColor;
+  context.beginPath();
+  context.arc(-w * 0.4, topY - 12, 28, 0, Math.PI * 2);
+  context.arc(w * 0.4, topY - 12, 28, 0, Math.PI * 2);
+  context.fill();
+
+  context.fillStyle = '#ffc8c8';
+  context.beginPath();
+  context.arc(-w * 0.4, topY - 12, 14, 0, Math.PI * 2);
+  context.arc(w * 0.4, topY - 12, 14, 0, Math.PI * 2);
+  context.fill();
+
+  // 역삼각형 머리 본체
+  context.fillStyle = r.bodyColor;
+  context.beginPath();
+  context.moveTo(-w * 0.5, topY);
+  context.lineTo(w * 0.5, topY);
+  context.lineTo(0, bottomY);
+  context.closePath();
+  context.fill();
+
+  // 눈가 마스크 패턴
+  context.fillStyle = r.maskColor;
+  context.beginPath();
+  context.ellipse(-w * 0.22, topY + h * 0.36, 30, 20, 0.15, 0, Math.PI * 2);
+  context.ellipse(w * 0.22, topY + h * 0.36, 30, 20, -0.15, 0, Math.PI * 2);
+  context.fill();
+
+  // 눈
+  context.fillStyle = '#ffffff';
+  context.beginPath();
+  context.arc(-w * 0.22, topY + h * 0.36, 11, 0, Math.PI * 2);
+  context.arc(w * 0.22, topY + h * 0.36, 11, 0, Math.PI * 2);
+  context.fill();
+
+  context.fillStyle = r.eyeColor;
+  context.beginPath();
+  context.arc(-w * 0.22, topY + h * 0.36, 6.5, 0, Math.PI * 2);
+  context.arc(w * 0.22, topY + h * 0.36, 6.5, 0, Math.PI * 2);
+  context.fill();
+
+  // 원형 코 (역삼각형의 아래쪽 꼭짓점)
+  context.fillStyle = '#111111';
+  context.beginPath();
+  context.arc(0, bottomY, 13, 0, Math.PI * 2);
+  context.fill();
+
+  context.restore();
+}
+
+// 6. 너구리 상태 및 애니메이션 루틴
+function updateRaccoonBehavior() {
+  globalTick++;
+
+  // --- 1) 대기 상태일 때 통통 튀는(Bounce) 귀여운 움직임 ---
+  raccoons.forEach(r => {
+    if (r.state === 'idle') {
+      // 위로 18px 정도 가볍게 솟구쳤다 바닥에 닿는 부드러운 사인 바운스
+      r.bounceOffset = -Math.abs(Math.sin(globalTick * r.bounceSpeed + r.bouncePhase)) * 18;
+    } else {
+      // 걷거나 씻거나 먹는 중에는 바운스 자연스럽게 완화
+      r.bounceOffset += (0 - r.bounceOffset) * 0.2;
+    }
+  });
+
+  // --- 2) 검은 너구리: 물웅덩이 이동 -> 물에 담가 서서히 녹이기 -> 복귀 ---
+  const black = raccoons[0];
+
+  if (black.state === 'carrying_to_water') {
+    // 솜사탕을 너구리 오른쪽 바로 '옆(어깨 높이)'에 나란히 붙여서 이동
+    if (black.carryingCandy) {
+      black.carryingCandy.x = black.x + 85; 
+      black.carryingCandy.y = black.y - 10 + black.bounceOffset;
+    }
+
+    const targetX = pond.x - 120;
+    const targetY = pond.y - 20;
+    const dx = targetX - black.x;
+    const dy = targetY - black.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > black.speed) {
+      black.x += (dx / dist) * black.speed;
+      black.y += (dy / dist) * black.speed;
+    } else {
+      black.x = targetX;
+      black.y = targetY;
+      black.state = 'washing_in_water';
+      black.dissolveTimer = 0;
+    }
+  } else if (black.state === 'washing_in_water') {
+    // 물속에서 솜사탕을 대고 살랑살랑 흔들며 서서히 녹임
+    black.dissolveTimer++;
+    const totalDissolveTime = 130; // 약 2초간 서서히 녹아내림
+    const candy = black.carryingCandy;
+
+    if (candy) {
+      // 물속 위치 고정 + 미세하게 위아래로 흔들림(Shake/Jiggle)
+      const jiggle = Math.sin(globalTick * 0.3) * 6;
+      candy.x = pond.x - 30;
+      candy.y = pond.y + jiggle;
+
+      // 크기와 투명도가 부드럽게 점진적으로 감소
+      const progress = black.dissolveTimer / totalDissolveTime;
+      candy.radius = candy.initialRadius * Math.max(0, 1 - progress);
+      candy.alpha = Math.max(0, 1 - progress);
+
+      // 물에 녹으면서 몽글몽글 퍼져나가는 미세 거품 파티클 발생
+      if (Math.random() < 0.6 && candy.alpha > 0.1) {
+        particles.push(new Particle(candy.x + (Math.random() - 0.5) * 20, candy.y + (Math.random() - 0.5) * 20, PINK_COLOR, 'melt'));
+      }
+
+      if (black.dissolveTimer >= totalDissolveTime) {
+        candy.isDead = true;
+        candy.alpha = 0;
+        black.carryingCandy = null;
+        black.state = 'returning';
+        scheduleRespawn();
+      }
+    } else {
+      black.state = 'returning';
+    }
+  } else if (black.state === 'returning') {
+    const dx = black.baseX - black.x;
+    const dy = black.baseY - black.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > black.speed) {
+      black.x += (dx / dist) * black.speed;
+      black.y += (dy / dist) * black.speed;
+    } else {
+      black.x = black.baseX;
+      black.y = black.baseY;
+      black.state = 'idle';
+    }
+  }
+
+  // --- 3) 갈색 너구리: 솜사탕을 오물오물 먹어 점진적으로 축소 소멸 ---
+  const brown = raccoons[1];
+  if (brown.state === 'eating') {
+    brown.eatingProgress++;
+    const totalEatTime = 90; // 약 1.5초간 먹음
+    const candy = brown.eatingCandy;
+
+    if (candy) {
+      // 솜사탕을 갈색 너구리 코/얼굴 옆에 두고 냠냠 먹는 듯한 작은 꿀렁거림
+      const eatJiggle = Math.sin(globalTick * 0.4) * 3;
+      candy.x = brown.x + 55;
+      candy.y = brown.y + 15 + eatJiggle;
+
+      const progress = brown.eatingProgress / totalEatTime;
+      // 점진적으로 작아지면서 소멸
+      candy.radius = candy.initialRadius * Math.max(0, 1 - progress);
+      candy.alpha = Math.max(0, 1 - progress * 0.7);
+
+      // 먹는 도중 가끔 튀는 가루 파티클
+      if (Math.random() < 0.3) {
+        particles.push(new Particle(candy.x, candy.y, PINK_COLOR, 'melt'));
+      }
+
+      if (brown.eatingProgress >= totalEatTime) {
+        candy.isDead = true;
+        brown.eatingCandy = null;
+        brown.state = 'idle';
+        createBurstParticles(brown.x + 50, brown.y + 15, 12, PINK_COLOR);
+        scheduleRespawn();
+      }
+    } else {
+      brown.state = 'idle';
+    }
+  }
+}
+
+// 2~3초 후 리스폰 관리자
+let respawnTimeout = null;
+function scheduleRespawn() {
+  const allDead = candies.every(c => c.isDead);
+  if (allDead && !respawnTimeout) {
+    const delay = Math.random() * 1000 + 2000;
+    respawnTimeout = setTimeout(() => {
+      initCandies();
+      respawnTimeout = null;
+    }, delay);
+  }
+}
+
+// 7. 터치/마우스 좌표 변환 (1000x1000 캔버스)
+function getCanvasPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = WIDTH / rect.width;
+  const scaleY = HEIGHT / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+function handlePointerDown(e) {
+  const { x, y } = getCanvasPos(e);
+  isPressing = true;
+
+  for (let i = candies.length - 1; i >= 0; i--) {
+    const candy = candies[i];
+    if (candy.isDead || candy.alpha <= 0.1) continue;
+    // 이미 너구리가 들고 가거나 먹고 있는 솜사탕은 집을 수 없음
+    if (candy === raccoons[0].carryingCandy || candy === raccoons[1].eatingCandy) continue;
+
+    const d = Math.hypot(x - candy.x, y - candy.y);
+    if (d < candy.radius + 20) {
+      draggedCandy = candy;
+      longPressTarget = candy;
+      longPressStartTime = performance.now();
+      dragOffsetX = x - candy.x;
+      dragOffsetY = y - candy.y;
+      break;
+    }
+  }
+}
+
+function handlePointerMove(e) {
+  if (!isPressing || !draggedCandy) return;
+  const { x, y } = getCanvasPos(e);
+
+  const moveDist = Math.hypot(x - (draggedCandy.x + dragOffsetX), y - (draggedCandy.y + dragOffsetY));
+  if (moveDist > 25) {
+    longPressTarget = null;
+  }
+
+  draggedCandy.x = x - dragOffsetX;
+  draggedCandy.y = y - dragOffsetY;
+}
+
+function handlePointerUp() {
+  if (!isPressing) return;
+  isPressing = false;
+
+  // 1) 롱프레스 팽창 후 해제: 사방으로 펑 터지며 소멸
+  if (longPressTarget && (performance.now() - longPressStartTime > 450)) {
+    createBurstParticles(longPressTarget.x, longPressTarget.y, 75, PINK_COLOR);
+    candies.forEach(c => { c.isDead = true; });
+    scheduleRespawn();
+    longPressTarget = null;
+    draggedCandy = null;
+    return;
+  }
+
+  // 2) 너구리에게 드래그해서 주기
+  if (draggedCandy) {
+    const c = draggedCandy;
+
+    // 검은 너구리 판정
+    const dBlack = Math.hypot(c.x - raccoons[0].x, c.y - raccoons[0].y);
+    if (dBlack < 130 && raccoons[0].state === 'idle') {
+      raccoons[0].carryingCandy = c;
+      raccoons[0].state = 'carrying_to_water';
+      // 너구리 옆에 착 붙임
+      c.x = raccoons[0].x + 85;
+      c.y = raccoons[0].y - 10;
+      draggedCandy = null;
+      longPressTarget = null;
+      return;
+    }
+
+    // 갈색 너구리 판정
+    const dBrown = Math.hypot(c.x - raccoons[1].x, c.y - raccoons[1].y);
+    if (dBrown < 130 && raccoons[1].state === 'idle') {
+      raccoons[1].eatingCandy = c;
+      raccoons[1].state = 'eating';
+      raccoons[1].eatingProgress = 0;
+      c.x = raccoons[1].x + 55;
+      c.y = raccoons[1].y + 15;
+      draggedCandy = null;
+      longPressTarget = null;
+      return;
+    }
+  }
+
+  draggedCandy = null;
+  longPressTarget = null;
+}
+
+window.addEventListener('mousedown', handlePointerDown);
+window.addEventListener('mousemove', handlePointerMove);
+window.addEventListener('mouseup', handlePointerUp);
+
+window.addEventListener('touchstart', handlePointerDown, { passive: true });
+window.addEventListener('touchmove', handlePointerMove, { passive: true });
+window.addEventListener('touchend', handlePointerUp);
+
+// 8. 렌더링 루프
+function animate() {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+  // 연못 및 너구리 렌더링
+  drawPond(ctx);
+  raccoons.forEach(r => drawRaccoon(ctx, r));
+
+  // 롱프레스 팽창 로직
+  if (isPressing && longPressTarget) {
+    const pressDuration = performance.now() - longPressStartTime;
+    if (pressDuration > 250) {
+      const growthFactor = Math.min(3.4, 1 + (pressDuration - 250) * 0.002);
+      candies.forEach(candy => {
+        if (!candy.isDead && candy !== raccoons[0].carryingCandy && candy !== raccoons[1].eatingCandy) {
+          candy.isMerged = true;
+          candy.x += (longPressTarget.x - candy.x) * 0.16;
+          candy.y += (longPressTarget.y - candy.y) * 0.16;
+          candy.radius = candy.initialRadius * growthFactor;
+        }
+      });
+    }
+  } else {
+    candies.forEach(c => { c.isMerged = false; });
+  }
+
+  // 솜사탕 업데이트 및 그리기
+  candies.forEach(candy => {
+    candy.update();
+    candy.draw(ctx);
+  });
+
+  // 파티클 업데이트
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.update();
+    p.draw(ctx);
+    if (p.alpha <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+
+  // 너구리 상태 및 이동 업데이트
+  updateRaccoonBehavior();
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>

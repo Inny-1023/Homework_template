@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Delete, Delete, Delete</title>
+<style>
+:root{--bg:#f2f5f9;--fg:#223;--btn:#fff;--on:#3b82f6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181d;--fg:#e8ecf2;--btn:#252a33}}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e8ecf2;--btn:#252a33}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;display:flex;justify-content:center;align-items:center;min-height:100dvh;padding:8px;box-sizing:border-box}
+h1{font-size:17px;margin:4px 0 10px}
+.tabs{display:flex;gap:8px;margin-bottom:10px}
+button{font:inherit;color:var(--fg);background:var(--btn);border:1px solid #8884;border-radius:10px;padding:8px 14px;cursor:pointer}
+button.on{background:var(--on);color:#fff;border-color:var(--on)}
+canvas{width:min(100%,calc((100dvh - 24px)*.75));max-width:none;aspect-ratio:3/4;border-radius:16px;touch-action:none;user-select:none;-webkit-user-select:none}
+#hint{margin:10px 0 8px;font-size:14px;text-align:center;min-height:40px}
+</style>
+</head>
+<body>
+<canvas id="c" width="720" height="960"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=360,H=480,G=410;x.scale(2,2);
+let melt,evap,gone,parts,holding,downT,sun,t=0,last=performance.now();
+function reset(){melt=0;evap=0;gone=false;parts=[];holding=false;downT=0;sun={x:300,y:70,drag:false};}
+function pos(e){const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
+const onSnow=p=>!gone&&melt<1&&Math.hypot(p.x-180,p.y-300)<120&&p.y<G;
+function burst(){for(let i=0;i<70;i++){const a=Math.random()*Math.PI*2,s=2+Math.random()*5;
+parts.push({x:180+(Math.random()-.5)*80,y:240+Math.random()*150,vx:Math.cos(a)*s,vy:Math.sin(a)*s-3,r:3+Math.random()*5,l:1});}gone=true;}
+c.addEventListener('pointerdown',e=>{const p=pos(e);c.setPointerCapture(e.pointerId);
+if(gone&&!parts.length){reset();return;}
+if(Math.hypot(p.x-sun.x,p.y-sun.y)<50){sun.drag=true;return;}
+if(onSnow(p)){holding=true;downT=performance.now();}});
+c.addEventListener('pointermove',e=>{if(sun.drag){const p=pos(e);sun.x=Math.max(30,Math.min(W-30,p.x));sun.y=Math.max(30,Math.min(G-30,p.y));}});
+const up=()=>{if(holding&&performance.now()-downT<250&&!gone)burst();holding=false;sun.drag=false;};
+c.addEventListener('pointerup',up);c.addEventListener('pointercancel',()=>{holding=false;sun.drag=false;});
+function snowman(m,a){x.save();x.globalAlpha=a;x.translate(180,G);x.scale(1+m*.35,1-m*.9);x.translate(-180,-G);
+x.fillStyle='#fff';x.strokeStyle='#cfd8e3';x.lineWidth=2;
+[[180,355,55],[180,290,40],[180,240,28]].forEach(([cx,cy,r])=>{x.beginPath();x.arc(cx,cy,r,0,7);x.fill();x.stroke();});
+x.fillStyle='#223';[172,188].forEach(ex=>{x.beginPath();x.arc(ex,235,3,0,7);x.fill();});
+[280,300].forEach(by=>{x.beginPath();x.arc(180,by,3.5,0,7);x.fill();});
+x.fillStyle='#f97316';x.beginPath();x.moveTo(180,241);x.lineTo(200,245);x.lineTo(180,248);x.fill();
+x.strokeStyle='#8b5a2b';x.lineWidth=3;x.beginPath();x.moveTo(140,285);x.lineTo(115,265);x.moveTo(220,285);x.lineTo(245,265);x.stroke();
+x.restore();}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
+const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#9ec9f5');g.addColorStop(1,'#e6f1fc');x.fillStyle=g;x.fillRect(0,0,W,H);
+x.fillStyle='#f8fbff';x.fillRect(0,G,W,H-G);
+
+if(!gone&&melt<1){
+if(holding&&now-downT>250){melt=Math.min(1,melt+dt*.3);if(Math.random()<.4)parts.push({x:150+Math.random()*60,y:G-60*(1-melt),vx:0,vy:-1.2,r:4,l:1,steam:1});}
+if(Math.hypot(sun.x-180,sun.y-300)<130)melt=Math.min(1,melt+dt*.3);}
+if(melt>=1&&!gone){evap+=dt*.5;if(evap>=1)gone=true;}
+if(!gone){const pr=(20+melt*85)*(1-evap);x.fillStyle='rgba(120,180,235,'+(.75*(1-evap))+')';
+x.beginPath();x.ellipse(180,G+4,pr*1.2,pr*.22,0,0,7);x.fill();
+if(melt<1)snowman(melt,1);}
+parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(!p.steam)p.vy+=.35;p.l-=dt*(p.steam?.8:.7);
+x.fillStyle='rgba(255,255,255,'+Math.max(0,p.steam?p.l*.6:p.l)+')';
+x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill();});
+parts=parts.filter(p=>p.l>0);
+x.fillStyle='#fcd34d';x.beginPath();x.arc(sun.x,sun.y,26,0,7);x.fill();
+x.strokeStyle='#fbbf24';x.lineWidth=3;for(let i=0;i<8;i++){const a=i*Math.PI/4+t;x.beginPath();x.moveTo(sun.x+Math.cos(a)*32,sun.y+Math.sin(a)*32);x.lineTo(sun.x+Math.cos(a)*42,sun.y+Math.sin(a)*42);x.stroke();}x.globalAlpha=1;
+if(gone&&!parts.length){x.fillStyle='#456';x.font='15px sans-serif';x.textAlign='center';x.fillText('다시 탭하면 새 눈사람',180,250);}
+requestAnimationFrame(loop);}
+reset();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
