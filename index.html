@@ -2,71 +2,279 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <!-- 모바일 필수: 이 태그가 없으면 폰에서 PC용 화면처럼 축소되어 터치가 스크롤/확대로 해석됨 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <!-- 모바일 필수: 뷰포트 확대 방지 및 노치/다이내믹 아일랜드 영역(viewport-fit=cover) 대응 -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <title>과제 모음</title>
     <style>
-      /* 허브 페이지는 절대 스크롤/선택되지 않게 고정 (아이폰에서 터치가 페이지 스크롤로 새는 것 방지) */
+      :root {
+        --nav-bg: rgba(255, 255, 255, 0.88);
+        --nav-border: rgba(226, 232, 240, 0.9);
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --active-bg: #0f172a;
+        --active-text: #ffffff;
+        --stage-bg: #f8fafc;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --nav-bg: rgba(15, 23, 42, 0.88);
+          --nav-border: rgba(51, 65, 85, 0.8);
+          --text-primary: #f8fafc;
+          --text-secondary: #94a3b8;
+          --active-bg: #3b82f6;
+          --active-text: #ffffff;
+          --stage-bg: #090d16;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* 모바일 전체화면 고정: 스크롤 및 텍스트 드래그 방지 */
       html, body {
+        width: 100%;
         height: 100%;
+        height: 100dvh;
         margin: 0;
+        padding: 0;
         overflow: hidden;
         overscroll-behavior: none;
         -webkit-user-select: none;
         user-select: none;
         -webkit-touch-callout: none;
-        font-family: sans-serif;
+        touch-action: manipulation;
+        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", Roboto, sans-serif;
+        background: var(--stage-bg);
+        display: flex;
+        flex-direction: column;
       }
-      /* 왼쪽 메뉴 */
+
+      /* 상단 네비게이션 헤더 */
       #menu {
-        position: fixed;
+        position: relative;
+        z-index: 50;
+        flex-shrink: 0;
+        width: 100%;
+        padding-top: var(--safe-top);
+        padding-left: max(16px, var(--safe-left));
+        padding-right: max(16px, var(--safe-right));
+        padding-bottom: 8px;
+        background: var(--nav-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--nav-border);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+        white-space: nowrap;
+        padding: 6px 0;
+      }
+
+      .nav-brand-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+      }
+
+      /* 세그먼트 컨트롤 탭 그룹 */
+      .nav-tabs {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(148, 163, 184, 0.12);
+        padding: 4px;
+        border-radius: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .nav-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        min-height: 38px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+        border: none;
+        background: transparent;
+        touch-action: manipulation;
+      }
+
+      .nav-item:hover {
+        color: var(--text-primary);
+      }
+
+      .nav-item:active {
+        transform: scale(0.96);
+      }
+
+      .nav-item.active {
+        background: var(--active-bg);
+        color: var(--active-text);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      /* iframe 뷰어 영역 (화면 전체 반응형 채움) */
+      #stage {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: var(--stage-bg);
+        padding-bottom: var(--safe-bottom);
+        padding-left: var(--safe-left);
+        padding-right: var(--safe-right);
+      }
+
+      #viewer {
+        position: absolute;
         top: 0;
         left: 0;
-        width: 100px;
-        height: 100%;
-        padding: 20px;
-        box-sizing: border-box;
-        background: #fff;
-      }
-      #menu a {
-        display: block;
-        margin-bottom: 10px;
-        cursor: pointer;
-        color: blue;
-      }
-      /* iframe 영역: 메뉴(100px)를 뺀 나머지 화면 전체 */
-      #stage {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 100px;
-        overflow: hidden;
-      }
-      #viewer {
-        display: block;
         width: 100%;
         height: 100%;
         border: 0;
+        display: block;
+        opacity: 1;
+        transition: opacity 0.18s ease-in-out;
+      }
+
+      #viewer.loading {
+        opacity: 0;
+      }
+
+      /* 모바일 최적화 (화면 폭이 좁을 때) */
+      @media (max-width: 640px) {
+        #menu {
+          padding-top: max(8px, var(--safe-top));
+          padding-bottom: 8px;
+          gap: 8px;
+        }
+
+        .nav-brand {
+          font-size: 14px;
+        }
+
+        .nav-brand-title {
+          display: none; /* 초소형 모바일에서 탭 버튼 공간 확보 */
+        }
+
+        .nav-tabs {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .nav-item {
+          flex: 1;
+          padding: 8px 10px;
+          font-size: 13px;
+          min-height: 38px;
+          text-align: center;
+        }
       }
     </style>
   </head>
   <body>
-    <div id="menu">
-      <a onclick="loadHomework('Homework1')">Homework1</a>
-      <a onclick="loadHomework('Snowman')">Snowman</a>
-      <a onclick="loadHomework('Homework3')">Homework3</a>
-    </div>
+    <!-- 반응형 상단 네비게이션 바 -->
+    <header id="menu">
+      <div class="nav-brand">
+        <span class="nav-brand-dot"></span>
+        <span class="nav-brand-title">과제 모음</span>
+      </div>
 
-    <div id="stage">
-      <!-- 처음 열었을 때 보여줄 과제 -->
-      <iframe id="viewer" src="Homework1/index.html"></iframe>
-    </div>
+      <nav class="nav-tabs" role="tablist">
+        <button
+          class="nav-item active"
+          role="tab"
+          data-target="Homework1"
+          onclick="loadHomework('Homework1', this)"
+        >
+          Homework1
+        </button>
+        <button
+          class="nav-item"
+          role="tab"
+          data-target="Snowman"
+          onclick="loadHomework('Snowman', this)"
+        >
+          Snowman
+        </button>
+        <button
+          class="nav-item"
+          role="tab"
+          data-target="Homework3"
+          onclick="loadHomework('Homework3', this)"
+        >
+          Homework3
+        </button>
+      </nav>
+    </header>
+
+    <!-- 과제 뷰어 영역 -->
+    <main id="stage">
+      <iframe id="viewer" src="Homework1/index.html" title="과제 뷰어"></iframe>
+    </main>
 
     <script>
-      // 메뉴 클릭 시 iframe에 해당 폴더의 index.html을 불러옴
-      function loadHomework(folderName) {
-        document.getElementById("viewer").src = folderName + "/index.html";
+      // 메뉴 클릭 시 iframe에 해당 폴더의 index.html 로드 및 활성 탭 갱신
+      function loadHomework(folderName, element) {
+        const viewer = document.getElementById("viewer");
+        const targetSrc = folderName + "/index.html";
+
+        // 활성화된 탭 스타일 갱신
+        document.querySelectorAll(".nav-item").forEach(function (btn) {
+          btn.classList.remove("active");
+          if (btn.getAttribute("data-target") === folderName) {
+            btn.classList.add("active");
+          }
+        });
+
+        if (element && !element.classList.contains("active")) {
+          element.classList.add("active");
+        }
+
+        // 부드러운 전환 효과
+        if (viewer.getAttribute("src") !== targetSrc) {
+          viewer.classList.add("loading");
+          viewer.src = targetSrc;
+          viewer.onload = function () {
+            viewer.classList.remove("loading");
+          };
+        }
       }
     </script>
   </body>

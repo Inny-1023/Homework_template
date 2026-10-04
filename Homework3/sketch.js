@@ -14,3 +14,7 @@ function draw() {
   fill(100, 200, 100);
   circle(x, height / 2, 50);
 }
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
