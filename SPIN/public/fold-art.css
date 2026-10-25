@@ -1,0 +1,23 @@
+/* Progress is driven directly by the pointer. Fabric halves turn about creases. */
+.fold-textile{position:relative;display:block;width:100%;height:100%;aspect-ratio:220/240;perspective:900px;isolation:isolate;--fold-progress:0;--fold-sides:0;--fold-bottom:0;--fold-angle:0deg;pointer-events:none;transform-style:preserve-3d}
+.fold-textile span{box-sizing:border-box}
+.fold-textile svg{display:block;width:100%!important;height:100%!important;max-width:none;overflow:visible}
+.fold-upper,.fold-lower,.fold-fabric-center,.fold-wing{position:absolute;inset:0;display:block;transform-style:preserve-3d}
+.fold-upper{clip-path:inset(0 0 44.7% 0);z-index:1}
+.fold-lower{clip-path:inset(54.7% 0 0 0);transform-origin:50% 55%;transform:rotateX(calc(-1 * var(--fold-angle)));z-index:4;filter:drop-shadow(0 calc(var(--fold-bottom) * -2px) calc(var(--fold-bottom) * 1px) #1113)}
+.fold-fabric-center{clip-path:inset(0 27.3% 0 27.3%)}
+.fold-wing-left{clip-path:inset(0 72.7% 0 0);transform-origin:27.3% 50%;transform:rotateY(calc(var(--fold-sides) * -180deg));z-index:2}
+.fold-wing-right{clip-path:inset(0 0 0 72.7%);transform-origin:72.7% 50%;transform:rotateY(calc(var(--fold-sides) * 180deg));z-index:3}
+.fold-wing::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:calc(var(--fold-sides) * .07);background:#111;clip-path:inherit}
+.fold-lower-back{position:absolute;inset:55% 27.3% 7% 27.3%;background:linear-gradient(0deg,#1110,#1111);opacity:var(--fold-bottom);border-left:1px solid #1114;border-right:1px solid #1114;pointer-events:none}
+.fold-writing{position:absolute;top:33%;left:29%;width:42%;max-height:37%;overflow:hidden;z-index:3;text-align:center;color:#111;opacity:clamp(0,calc(1 - var(--fold-progress) * 2.4),1);line-height:1.45;pointer-events:none;transform:translateZ(.2px)}
+.fold-writing-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:clamp(10px,1vw,15px);font-weight:850;letter-spacing:-.4px;word-break:keep-all;overflow-wrap:break-word}
+.fold-writing-body{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;font-size:clamp(8px,.8vw,11px);font-weight:500;letter-spacing:-.15px;line-height:1.6;white-space:pre-line;margin-top:7px;word-break:keep-all;overflow-wrap:break-word}
+.fold-crease{position:absolute;display:block;z-index:5;opacity:calc((1 - var(--fold-progress)) * .38);pointer-events:none}
+.fold-crease-left,.fold-crease-right{top:25%;height:58%;border-left:1px dashed #111}
+.fold-crease-left{left:27.3%}.fold-crease-right{right:27.3%}
+.fold-crease-middle{left:27.3%;right:27.3%;top:55%;border-top:1.5px dashed #111}
+.fold-finished-seam{position:absolute;top:54.7%;left:27.1%;right:27.1%;border-top:2px solid #111;opacity:var(--fold-bottom);z-index:6;pointer-events:none;box-shadow:0 2px 0 #1112}
+.fold-fabric-shadow{position:absolute;left:27%;right:26%;top:calc(90% - var(--fold-bottom) * 32%);height:5%;border-radius:50%;background:#1112;filter:blur(3px);z-index:-1;opacity:calc(.45 + var(--fold-bottom) * .35);transform:scaleX(calc(1 - var(--fold-sides) * .12))}
+.fold-textile.is-settling .fold-upper,.fold-textile.is-settling .fold-lower,.fold-textile.is-settling .fold-wing,.fold-textile.is-settling .fold-writing,.fold-textile.is-settling .fold-crease,.fold-textile.is-settling .fold-finished-seam{transition:transform .24s cubic-bezier(.2,.75,.25,1),opacity .2s ease}
+@media(prefers-reduced-motion:reduce){.fold-textile.is-settling *{transition:none!important}.fold-textile{perspective:none}}

@@ -1,0 +1,9 @@
+/* The fabric hem itself owns the gesture. The shirt remains in its original place. */
+.fabric-hem{position:absolute;z-index:8;display:block;touch-action:none;-webkit-user-select:none;user-select:none;cursor:ns-resize;background:transparent;border:0;border-radius:0;box-shadow:none;color:#111}
+.fabric-hem::after{content:"";position:absolute;inset:5px 5px 6px;border-bottom:1.5px dashed currentColor;opacity:0;pointer-events:none;transition:opacity .15s}
+.fabric-hem:hover::after,.fabric-hem:focus-visible::after{opacity:.8}
+.fabric-hem:focus-visible{outline:2px dashed #111;outline-offset:2px}
+.fabric-hem.fold-grabbing{cursor:grabbing}
+.is-fold-manipulating{z-index:10}
+.is-fold-manipulating .fabric-hem::after{opacity:0}
+@media(prefers-reduced-motion:reduce){.fabric-hem::after{transition:none}}

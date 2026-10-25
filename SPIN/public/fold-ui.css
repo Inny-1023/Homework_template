@@ -1,0 +1,73 @@
+/* Fabric is the control: the transparent hit region follows the sewn hem. */
+.cloth-fold-handle,.cloth-unfold-handle,.machine-fold-handle,.editor-fold-handle{display:none!important}
+[data-cloth-surface]{position:relative;--fabric-open:1}
+.fabric-hem{position:absolute;left:27%;right:27%;top:calc(44% + var(--fabric-open,1)*38%);bottom:auto;height:13%;min-height:17px;z-index:15;display:block;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;margin:0;touch-action:none;-webkit-user-select:none;user-select:none;cursor:ns-resize;outline:none;color:#111;transform:none}
+.fabric-hem::before{content:"";position:absolute;left:5%;right:5%;top:53%;height:0;border-top:2px dashed #111;opacity:0;pointer-events:none;transition:opacity .15s}
+.fabric-hem::after{content:"밑단을 위로 끌어 접기";position:absolute;left:50%;top:100%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;letter-spacing:-.2px;line-height:1.5;color:#111;opacity:0;pointer-events:none;transition:opacity .15s}
+.fabric-hem[data-unfold]::after{content:"아래로 끌어 펼치기";color:#f6f2df}
+.fabric-hem:hover::before,.fabric-hem:focus-visible::before{opacity:.8}
+.fabric-hem:hover::after,.fabric-hem:focus-visible::after{opacity:1}
+.fabric-hem:focus-visible{outline:2px dashed #ef4da3;outline-offset:2px}
+.is-fold-manipulating .fabric-hem{cursor:grabbing}
+.is-fold-manipulating .fabric-hem::after{opacity:0}
+.is-fold-manipulating{z-index:12!important}
+.cloth .cloth-art,.cloth .cloth-art>.fold-textile{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cloth .cloth-title,.cloth .cloth-meta{opacity:var(--fabric-open,1)}
+
+/* Draping the complete shirt over the basket leaves its actual hem reachable. */
+.basket-clothes{z-index:4;padding-top:0;padding-bottom:14px;scroll-padding:22px}
+.basket-clothes>.cloth{margin-top:0}
+.basket-clothes>.cloth:nth-child(even){margin-top:8px}
+.basket-clothes>.cloth:hover,.basket-clothes>.cloth:focus-within{z-index:10}
+.basket-art{z-index:3;pointer-events:none}
+.basket-label{z-index:3;pointer-events:none}
+.rack-notes .cloth-meta{bottom:24%;font-size:10px}
+.rack-notes .fabric-hem{height:15%;min-height:24px}
+.rack-notes>.cloth::before,.rack-notes>.cloth::after{z-index:17}
+.washing-cloth .fabric-hem{height:16%;min-height:16px}
+.washing-cloth .fabric-hem::after{display:none}
+
+/* Even list miniatures are physical garments with usable fabric edges. */
+.compact-note{min-height:108px;align-items:center;gap:9px;padding:7px 0}
+.compact-note .cloth-mini-surface,.compact-note .mini-cloth{position:relative;display:block;flex:0 0 76px;width:76px;height:86px;min-width:76px;margin:0;overflow:visible}
+.cloth-mini-surface>.fold-textile{width:100%;height:100%}
+.compact-note .compact-open{flex:1;min-width:0;align-self:stretch;display:flex;align-items:center;text-align:left;gap:8px;font-size:13px;line-height:1.6;padding:8px 0}
+.compact-note .compact-title{flex:1;font-weight:750;word-break:keep-all;overflow-wrap:anywhere}
+.compact-note .compact-handle{order:3;margin-left:0;flex:0 0 28px;align-self:center}
+.compact-note .fabric-hem{left:26%;right:26%;height:18%;min-height:21px;z-index:16}
+.compact-note .fabric-hem::after{font-size:9px;top:97%}
+.compact-notes{max-height:260px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#aaa transparent;padding-right:3px}
+.ready-tray,.reference-tray{min-height:225px;max-height:350px}
+
+/* The archive reserves space for the same shirt to open in place. */
+.folded-notes{display:flex;flex-wrap:wrap;gap:24px;min-height:225px;align-items:flex-start}
+.folded-note[data-cloth-surface]{--fabric-open:0;position:relative;display:block;flex:0 0 220px;width:220px;height:auto;min-height:225px;padding:0 10px 12px;color:#fff;overflow:visible;transition:background .2s}
+.folded-note[data-cloth-surface]:hover{transform:none}
+.archive-cloth{position:relative;display:block;width:180px;height:200px;margin:0 auto;overflow:visible}
+.archive-cloth>.fold-textile{width:100%;height:100%;pointer-events:none}
+.archive-cloth .fabric-hem{top:calc(44% + var(--fabric-open,0)*38%);height:15%;left:27%;right:27%;min-height:22px}
+.folded-note .folded-title{position:static;display:block;top:auto;left:auto;right:auto;width:auto;font-size:12px;font-weight:750;line-height:1.5;color:#f4f0dc;white-space:normal;overflow:visible;text-align:left;pointer-events:none}
+.folded-note .folded-date{position:static;display:block;left:auto;right:auto;bottom:auto;font-size:10px;line-height:1.7;color:#aaa;text-align:left;margin-top:4px}
+.archive-caption,.archive-note-caption{display:block;margin:0 8px;font-size:12px;line-height:1.6;color:#eee;word-break:keep-all;overflow-wrap:anywhere}
+.archive-caption time,.archive-note-caption time{display:block;color:#aaa;font-size:10px;margin-top:3px}
+.folded-note .unfolded-memo{display:none}
+.folded-note.is-unfolded[data-cloth-surface]{--fabric-open:1;display:grid;grid-template-columns:180px minmax(0,1fr);grid-template-rows:auto auto;column-gap:22px;flex-basis:530px;width:530px;min-height:225px;padding:10px 16px 15px;border:1px solid #4f4f4f;background:#1b1b1b;transform:none}
+.folded-note.is-unfolded .archive-cloth{grid-column:1;grid-row:1;width:180px;height:200px;margin:0}
+.folded-note.is-unfolded .archive-caption,.folded-note.is-unfolded .archive-note-caption{grid-column:1;grid-row:2;margin:8px 0 0;font-size:11px}
+.folded-note.is-unfolded .unfolded-memo{display:block;grid-column:2;grid-row:1/3;align-self:start;min-width:0;padding:18px 17px;background:#fffbee;color:#111;border:2px solid #111;box-shadow:3px 3px 0 #000;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;font-size:13px;line-height:1.8}
+.unfolded-memo h3{font-size:15px;line-height:1.5;font-weight:850;letter-spacing:-.4px;margin:0 0 12px;white-space:normal}
+.unfolded-memo p,.unfolded-memo .memo-original-body{font-size:13px;line-height:1.85;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.unfolded-memo .memo-original-body:empty::after{content:"추가로 적어둔 내용이 없어요.";color:#777}
+.unfolded-memo time,.unfolded-memo .memo-record-status{display:block;margin-top:15px;font-size:10px;color:#66715f;line-height:1.6;white-space:normal}
+.folded-note.is-unfolding{transform:none;z-index:15}
+.folded-note.is-unfolding .archive-caption,.folded-note.is-fold-manipulating .archive-caption{opacity:var(--fabric-open,0)}
+.folded-note.is-fold-manipulating .unfolded-memo{opacity:var(--fabric-open,1)}
+
+.memo-editor-head{min-height:161px;gap:22px;align-items:center}
+#editor-garment[data-cloth-surface]{position:relative;width:136px;height:156px;flex-shrink:0;overflow:visible}
+#editor-garment>.fold-textile{width:100%;height:100%;pointer-events:none}
+#editor-garment .fabric-hem{height:15%;min-height:23px}
+.memo-editor-head>div:last-child{min-width:0;flex:1}
+.memo-editor-head h2{font-size:23px}
+.unfolded-memo .text-button{color:#324a2e;font-size:12px}
+@media(prefers-reduced-motion:reduce){.fabric-hem,.fabric-hem::before,.fabric-hem::after,.folded-note[data-cloth-surface]{transition:none!important}}

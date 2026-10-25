@@ -1,0 +1,29 @@
+SPIN — 생각 세탁소 / 실행 안내
+
+공개 사이트
+https://spin-thought-laundry.major-puppy-9727.chatgpt.site/
+
+이 ZIP에는 사이트 전체 소스 코드, 웹 화면 파일, 테스트, 배포 설정이 들어 있습니다.
+메모를 저장하는 개인 브라우저 데이터와 Git 이력, 인증 정보는 포함하지 않았습니다.
+
+로컬 실행 (설치·빌드 불필요)
+1. 압축을 풀고 SPIN 폴더를 엽니다.
+2. SPIN 폴더에서 터미널을 엽니다.
+3. Python 3가 설치된 환경에서 아래 명령을 실행합니다.
+   Mac / Linux:
+   python3 -m http.server 4186 --bind 127.0.0.1 --directory dist
+   Windows:
+   py -m http.server 4186 --bind 127.0.0.1 --directory dist
+4. 브라우저에서 http://localhost:4186 을 엽니다.
+5. 종료하려면 터미널에서 Ctrl+C를 누릅니다.
+
+index.html을 더블클릭하는 대신 위 서버 명령으로 실행해주세요.
+포트가 사용 중이면 4186을 4187로 바꾸고 브라우저 주소도 같이 바꿔주세요.
+Node.js가 있는 환경에서는 npm start로도 실행할 수 있습니다.
+테스트는 Node.js가 있는 환경에서 npm test로 실행합니다.
+
+기능과 조작 설명은 README.md에 있습니다.
+메모는 실행한 브라우저에 자동 저장됩니다.
+
+패키지 기준 날짜: 2026-10-25
+소스 버전: e717199ac33f1ea7d607954227e2d6fc9b1976cc
