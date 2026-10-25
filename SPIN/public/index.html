@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101010">
+  <meta name="description" content="생각도 빨래처럼. 바구니에 담고, 하나씩 처리하고, 가볍게 접어두는 나만의 작은 세탁실.">
+  <title>SPIN — 생각 세탁소</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./fold-art.css">
+  <link rel="stylesheet" href="./fold-gestures.css">
+  <link rel="stylesheet" href="./fold-ui.css">
+  <link rel="stylesheet" href="./washer-door.css">
+  <link rel="stylesheet" href="./tablet-web.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">세탁실로 바로 가기</a>
+<aside class="sidebar">
+  <a class="brand" href="./" aria-label="SPIN 처음으로"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="3" fill="none"/><path d="M8 21q5-15 14-6t10 4M9 25q7-10 14-3t8 1" fill="none" stroke="currentColor" stroke-width="3"/></svg><span>SPIN<span class="brand-en">THOUGHT LAUNDRY</span></span></a>
+  <nav aria-label="주 메뉴"><button class="nav-item active" id="nav-room"><span data-icon="home"></span>작업 공간<span class="nav-dot"></span></button><button class="nav-item" id="nav-archive"><span data-icon="archive"></span>접어둔 기록<span id="archive-nav-count" class="nav-count">0</span></button></nav>
+  <div class="sidebar-bottom"><div class="save-status"><i></i><span id="save-label">이 브라우저에 저장 중</span></div><button id="guide-open"><span data-icon="help"></span>사용법</button></div>
+</aside>
+<main id="main">
+  <header class="page-header"><div><div class="eyebrow"><span class="small-sun">✳</span><span id="today"></span><span class="date-rule"></span>OPEN FOR YOUR THOUGHTS</div><h1>생각은 쌓여도,<br>하나씩 처리하면 되니까<span class="title-dot">.</span></h1><p>일단 담고, 할 일을 나누고, 끝낸 생각은 접어두세요.</p></div><div class="hero-stickers" aria-hidden="true"><span class="hero-sticker">LESS MESS.<br>MORE YES!</span><span class="hero-small-sticker">ONE THING AT A TIME ↗</span></div><button class="primary new-note"><span data-icon="plus"></span>생각 넣기</button></header>
+  <section class="room-intro" aria-label="메모 처리 흐름"><span class="room-label"><i></i>THE LAUNDRY FLOOR</span><div class="flow-legend"><span>담기</span><b>→</b><span>분류</span><b>→</b><span>처리</span><b>→</b><span>접기</span></div><button class="text-button" id="guide-quick">처음 오셨나요? <span>↗</span></button></section>
+  <section class="workspace" aria-label="빨랫감을 끌어 옮기는 메모 작업 공간">
+    <div class="room-window" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="room-topline"><span class="handwritten">MESSY THOUGHTS. CLEAN START.</span><div class="room-tip"><span data-icon="hand"></span>점 손잡이로 옮기고, 옷 밑단을 잡아 접어보세요.</div></div>
+    <div class="scene-nav" aria-label="세탁실 화면 선택"><div class="scene-steps" role="tablist" aria-label="작업 공간"><button class="scene-step active" id="scene-tab-0" data-scene="0" role="tab" aria-selected="true" aria-controls="scene-0">01 <span>일단, 담기</span></button><button class="scene-step" id="scene-tab-1" data-scene="1" role="tab" aria-selected="false" aria-controls="scene-1" tabindex="-1">02 <span>하나씩, 처리</span></button><button class="scene-step" id="scene-tab-2" data-scene="2" role="tab" aria-selected="false" aria-controls="scene-2" tabindex="-1">03 <span>잠깐, 기다림</span></button></div><span class="swipe-hint">← 옆으로 스와이프 →</span><div class="scene-arrows"><button id="scene-prev" aria-label="이전 공간" disabled>←</button><span class="scene-counter" aria-live="polite">01 / 03</span><button id="scene-next" aria-label="다음 공간">→</button></div></div>
+    <div class="stations" tabindex="0" aria-label="옆으로 스와이프해서 공간 넘기기" aria-roledescription="캐러셀">
+      <section class="station basket-station" id="scene-0" data-drop="inbox" role="tabpanel" aria-labelledby="scene-tab-0">
+        <div class="station-heading"><span class="step-number">01</span><h2>일단, 담기</h2><span class="count" data-count="inbox">0</span></div><p class="station-caption">아직 정리되지 않은 생각들</p>
+        <div class="basket-scene"><div class="basket-clothes" id="inbox-notes"></div><div class="basket-art" id="basket-art"></div><span class="basket-label">THOUGHTS & THINGS</span></div>
+        <button class="add-to-basket new-note"><span data-icon="plus"></span>떠오른 생각 담기</button>
+        <div class="ready-tray" data-drop="ready" aria-label="직접 할 일 분류 영역"><div class="tray-heading"><span class="status-dot ready-dot"></span><h3>직접 할 일</h3><span data-count="ready">0</span></div><p>내 손으로 해낼 수 있는 일</p><div id="ready-notes" class="compact-notes"></div></div>
+      </section>
+      <section class="station washer-station" id="scene-1" role="tabpanel" aria-labelledby="scene-tab-1" inert>
+        <div class="station-heading"><span class="step-number">02</span><h2>하나씩, 처리</h2><span class="count" data-count="washing">0</span></div><p class="station-caption">문을 직접 열고, 옷을 드럼 안으로</p>
+        <div class="washer-scene"><div id="washer-art"></div><div id="washer-drum-target" class="washer-drum-target" data-washer-drum data-drop="washing" role="group" aria-label="세탁기 드럼 안쪽"><div id="washer-content"></div></div><button type="button" id="washer-door" class="washer-door-button" aria-label="세탁기 문 열기" aria-expanded="false" aria-controls="washer-drum-target"></button><div class="machine-screen" id="machine-screen">READY</div><div class="washer-progress" id="washer-progress"></div></div>
+        <aside class="washer-loading-area"><h3>세탁할 옷</h3><p id="door-hint">문을 먼저 연 다음, 옷을 드럼 안으로 옮겨주세요.</p><div id="washer-loading-notes" class="washer-loading-notes"></div><div class="washer-actions" id="washer-actions"></div><p class="washer-footnote" id="washer-footnote"><span data-icon="spark"></span>한 번에 한 벌, 내 속도대로.</p></aside>
+      </section>
+      <section class="station rack-station" id="scene-2" data-drop="waiting" role="tabpanel" aria-labelledby="scene-tab-2" inert>
+        <div class="station-heading"><span class="step-number">03</span><h2>잠깐, 기다림</h2><span class="count" data-count="waiting">0</span></div><p class="station-caption">답변과 시간이 필요한 일들</p>
+        <div class="rack-scene"><div class="clothesline" aria-hidden="true"></div><div class="rack-notes" id="waiting-notes"></div><div id="plant-art" aria-hidden="true"></div><div class="rack-bottom" aria-hidden="true"></div></div>
+        <div class="reference-tray" data-drop="reference" aria-label="나중에 참고할 메모 분류 영역"><div class="tray-heading"><span data-icon="bookmark"></span><h3>언젠가 꺼낼 생각</h3><span data-count="reference">0</span></div><p>지금 하지 않아도, 기억하고 싶은 것</p><div id="reference-notes" class="compact-notes"></div></div>
+      </section>
+    </div>
+    <div class="room-floor" aria-hidden="true"></div>
+    <div class="drop-assist" id="drop-assist" aria-hidden="true">옷을 잡은 채 위의 단계 탭에 올리면 공간을 넘길 수 있어요</div>
+  </section>
+  <section class="archive-section" id="archive-section" data-drop="done" aria-label="완료한 메모를 접어 보관하는 영역"><div class="archive-heading"><div class="archive-title"><span class="step-number">04</span><h2>끝낸 생각들</h2><span class="count" data-count="done">0</span><span class="archive-caption">접힌 밑단을 아래로 끌면 같은 자리에서 원문이 펼쳐져요.</span></div><button id="archive-toggle" class="text-button" aria-expanded="true">기록 숨기기 <span data-icon="chevron"></span></button></div><div id="done-notes" class="folded-notes"></div></section>
+  <footer class="page-footer"><span>작은 정리가 만드는, 가벼운 하루.</span><span id="completion-message"></span></footer>
+</main>
+<dialog id="memo-dialog" aria-labelledby="memo-dialog-title" closedby="closerequest">
+  <form id="memo-form"><div class="dialog-top"><span class="eyebrow">A THOUGHT TO KEEP</span><button type="button" class="icon-button dialog-close" aria-label="메모 닫기"><span data-icon="close"></span></button></div><div class="memo-editor-head"><div id="editor-garment" aria-hidden="true"></div><div><span id="memo-state" class="state-chip">새로운 생각</span><h2 id="memo-dialog-title">어떤 생각이 떠올랐나요?</h2><p id="editor-subtitle">분류는 나중에. 우선 가볍게 담아보세요.</p></div></div><label for="memo-title">메모 제목 <span>필수</span></label><input id="memo-title" name="title" maxlength="100" placeholder="예: 팀 프로젝트 발표 자료 만들기" required autocomplete="off"><label for="memo-body">자세한 이야기 <span>선택</span></label><textarea id="memo-body" name="body" rows="5" maxlength="10000" placeholder="해야 할 일, 기다리는 답변, 떠오른 아이디어를 적어주세요."></textarea><div class="editor-options"><fieldset class="color-picker"><legend>옷 색상</legend><div id="color-options"></div></fieldset><div id="waiting-field" hidden><label for="wait-reason">무엇을 기다리나요?</label><input id="wait-reason" placeholder="예: 팀원의 자료 전달" maxlength="120"></div></div><div id="history-area"></div><div id="memo-transitions" class="memo-transitions"></div><div class="dialog-actions"><button type="button" id="delete-note" class="danger-text" hidden>메모 삭제</button><button type="button" class="secondary dialog-close">닫기</button><button type="submit" class="primary" id="save-memo">바구니에 담기 <span>↗</span></button></div><p id="form-error" class="form-error" role="alert"></p></form>
+</dialog>
+<dialog id="guide-dialog" aria-labelledby="guide-title" closedby="closerequest"><div class="dialog-top"><span class="eyebrow">WELCOME TO SPIN</span><button class="icon-button guide-close" aria-label="안내 닫기"><span data-icon="close"></span></button></div><h2 id="guide-title">생각도 빨래처럼,<br>한 벌씩 정리해요.</h2><p class="guide-intro">옆으로 스와이프하며 공간을 바꿔요. 위치가 다음 할 일을 알려줘요.</p><ol class="guide-steps"><li><b>바구니에 담아요</b><p>메모를 쓰면 옷 한 벌이 돼요. 클릭하면 펼쳐 읽고 수정할 수 있어요.</p></li><li><b>내가 할 일과 기다릴 일을 나눠요</b><p>옷 위의 점 손잡이를 잡아 분류해요. 다른 공간으로 옮길 때는 옷을 잡은 채 위 단계 탭이나 화면 가장자리에 잠시 올려 공간을 넘긴 뒤 실제 사물 위에 놓아주세요.</p></li><li><b>한 벌을 세탁기에 넣어요</b><p>세탁기 문을 눌러 연 다음 옆의 옷을 열린 드럼 안으로 끌어 놓아요. 문이 닫히고 작업이 시작돼요. 탭은 화면만 바꿔요.</p></li><li><b>끝낸 일은 잘 개어둬요</b><p>화면에 있는 옷의 밑단을 위로 끌어 접으면 완료 보관돼요. 보관된 옷의 접힌 밑단을 아래로 끌면 그 자리에서 옷과 원문이 펼쳐져요.</p></li></ol><div class="guide-hint">키보드: 이동 손잡이는 ← → 로 위치를 고른 뒤 Enter로 옮겨요. 옷 밑단에 초점을 맞추고 ↑ ↓ 로 접거나 펼치고 Enter로 완료해요. 덜 끌고 놓거나 Esc를 누르면 취소돼요.</div><p class="storage-note">메모는 현재 기기의 브라우저에 저장돼요. 기기 간 동기화와 알림 기능은 제공하지 않아요.</p><button class="primary guide-close">작업 공간 둘러보기 <span>↗</span></button></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"><span id="toast-text"></span><button id="undo">되돌리기</button></div>
+<noscript><p class="noscript">메모를 담고 옮기려면 브라우저의 JavaScript를 켜주세요.</p></noscript>
+</body></html>

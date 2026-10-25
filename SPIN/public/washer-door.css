@@ -1,0 +1,53 @@
+/* The circular door is part of the machine; its hinge reveals the actual drum. */
+.washer-scene{width:320px;height:345px;aspect-ratio:320/345;max-width:none;position:relative;perspective:950px;overflow:visible;isolation:isolate}
+#washer-art{position:absolute;inset:0;pointer-events:none;z-index:1}
+#washer-art>svg{display:block;width:100%;height:100%;overflow:visible}
+.washer-door-button{position:absolute;left:21.5625%;top:22.6087%;width:56.875%;height:52.7536%;padding:0;margin:0;border:0;background:none;color:inherit;box-shadow:none;z-index:8;transform-origin:0 50%;transform:rotateY(0deg);transform-style:preserve-3d;backface-visibility:visible;cursor:pointer;border-radius:50%;touch-action:manipulation;transition:transform .38s cubic-bezier(.2,.75,.25,1),filter .2s}
+.washer-door-button>svg{display:block!important;width:100%!important;height:100%!important;max-width:none;overflow:visible;pointer-events:none}
+.washer-door-button:hover{filter:drop-shadow(0 0 3px #ffe14da6)}
+.washer-door-button:active{transform:rotateY(-5deg)}
+.washer-door-button:focus-visible{outline:3px dashed #ffe14d;outline-offset:5px}
+.washer-scene.is-door-open .washer-door-button{transform:rotateY(-110deg);filter:drop-shadow(-5px 5px 0 #1113)}
+.washer-scene.is-door-open .washer-door-button:active{transform:rotateY(-103deg)}
+.washer-scene.is-running .washer-door-button{transform:rotateY(0deg);cursor:progress}
+.washer-door-button[aria-disabled="true"]{cursor:progress}
+.washer-drum-target{position:absolute;left:29.375%;top:29.8551%;width:41.25%;height:38.2609%;border-radius:50%;clip-path:circle(50%);z-index:4;pointer-events:none;border:2px dashed transparent;background:transparent;box-sizing:border-box;transition:border-color .16s,background .16s,box-shadow .16s}
+.washer-scene.is-door-open:not(.is-running) .washer-drum-target{pointer-events:auto;border-color:#fff8ec55}
+.washer-scene.is-door-open .washer-drum-target.is-loading-hover,.washer-scene.is-door-open.is-loading-hover .washer-drum-target{border:3px solid #ffe14d;background:#ffe14d18;box-shadow:inset 0 0 0 3px #fff8ec77}
+.washer-scene.is-door-open .washer-drum-target.drop-target{outline:none!important;background:#ffe14d18!important;box-shadow:inset 0 0 0 4px #ffe14d!important}
+#washer-content{position:absolute;left:29.375%;top:29.8551%;width:41.25%;height:38.2609%;transform:none;display:flex;align-items:center;justify-content:center;z-index:5;text-align:center;pointer-events:none}
+#washer-content .washing-cloth{pointer-events:auto;width:101px;height:113px}
+#washer-drum-target>#washer-content{inset:0;left:0;top:0;width:100%;height:100%;transform:none}
+#washer-content .drum-empty{font-size:12px;color:#fff8ec;line-height:1.7;padding:0 7px}
+.washer-scene.is-door-open #washer-content .drum-empty{color:#fff8ec}
+.washer-scene:not(.is-door-open):not(.is-running) #washer-content{opacity:.72}
+.washer-scene .machine-screen{z-index:9}
+.washer-scene .washer-progress{z-index:9}
+.washer-scene.is-loading-hover #washer-art{filter:drop-shadow(0 0 4px #ffe14d88)}
+.washer-scene.door-closed .washer-door-button{filter:drop-shadow(0 0 5px #ef4da3)}
+.washer-scene .washer-door-button::after{content:"";position:absolute;right:5.5%;top:39%;width:8%;height:23%;border-radius:6px;cursor:grab}
+#door-hint,.door-hint{font-size:12px;line-height:1.8;color:#243c42;max-width:360px;text-align:center}
+.washer-loading-area{grid-column:2;grid-row:3/5;align-self:center;justify-self:center;width:100%;max-width:405px;max-height:360px;min-width:0;padding:17px 18px 15px;border:2px solid #111;background:#fffbee;box-shadow:4px 5px 0 #111;transform:rotate(1deg);overflow:auto;scrollbar-width:thin;scrollbar-color:#8c9994 transparent}
+.washer-loading-area h3{font-size:16px;line-height:1.5;font-weight:850;letter-spacing:-.5px;margin:0}
+.washer-loading-area>p{font-size:11px;line-height:1.7;color:#56605b;margin:6px 0 9px}
+.washer-loading-notes{display:flex;align-items:flex-start;gap:7px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#8c9994 transparent;min-height:174px;padding:8px 4px 8px}
+.washer-loading-notes>.cloth{width:142px;height:160px;flex:0 0 142px;transform:rotate(-3deg)}
+.washer-loading-notes>.cloth:nth-child(even){transform:rotate(4deg);margin-top:5px}
+.washer-loading-notes>.cloth .cloth-title{font-size:11px;top:36%;left:24%;width:52%;line-height:1.5}
+.washer-loading-notes>.cloth .cloth-handle{width:36px;height:25px;top:7%}
+.washer-loading-notes [data-load-shirt]{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}
+.washer-loading-notes [data-load-shirt]:active{cursor:grabbing}
+.washer-loading-notes .empty-note{font-size:12px;line-height:1.8;margin:20px auto;text-align:center;max-width:270px}
+.washer-loading-area .door-hint{font-size:11px;text-align:left;margin:8px 0 0;color:#4c6257}
+.washer-station .washer-actions{grid-column:1;grid-row:4;transform:none;align-self:end;margin:0;z-index:10;min-height:30px;max-width:370px}
+.washer-station .washer-actions .physical-fold-hint{font-size:10px;line-height:1.6;color:#394c48;text-align:center;max-width:280px}
+.washer-station .washer-footnote{grid-column:2;grid-row:4;transform:none;align-self:end;font-size:12px;z-index:11;max-width:405px}
+.washer-station .washer-footnote .active-work-title{font-size:13px;padding:5px 10px;max-width:360px}
+.washer-loading-area #washer-actions{position:static;display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:8px;max-width:none;min-height:0;margin:10px 0 0;transform:none}
+.washer-loading-area #washer-actions button{font-size:12px;min-height:35px;padding:7px 12px}
+.washer-loading-area #washer-actions .physical-fold-hint{font-size:10px;max-width:230px;text-align:left;line-height:1.6}
+.washer-loading-area #washer-footnote{position:static;display:flex;justify-content:flex-start;align-items:center;gap:6px;font-size:11px;line-height:1.6;max-width:none;text-align:left;margin:10px 0 0;transform:none}
+.washer-loading-area #washer-footnote .active-work-title{font-size:12px;line-height:1.5;padding:4px 8px;max-width:100%;box-shadow:2px 2px 0 #111}
+.washer-scene.is-running #washer-content .washing-cloth{animation:loaded-shirt-spin 5s linear infinite}
+@keyframes loaded-shirt-spin{from{transform:rotate(-6deg)}to{transform:rotate(354deg)}}
+@media(prefers-reduced-motion:reduce){.washer-door-button,.washer-drum-target{transition:none!important}.washer-scene.is-running #washer-content .washing-cloth{animation:none!important}}

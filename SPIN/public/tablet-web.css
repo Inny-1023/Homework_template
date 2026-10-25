@@ -1,0 +1,82 @@
+/* Landscape exhibition tablets keep the desktop's one-room-at-a-time workspace. */
+@media (min-width:768px) and (max-width:1119px){
+  body{min-width:0}
+  main{width:100%;max-width:100%;padding:24px 22px 0}
+  .sidebar{width:100%;height:80px;padding:12px 22px;gap:20px}
+  .brand{gap:9px}
+  .brand>span{font-size:27px}
+  .brand>svg{width:37px;height:37px}
+  .brand-en{font-size:8px;letter-spacing:2px}
+  .sidebar nav{gap:3px;min-width:0}
+  .nav-item{font-size:12px;min-height:40px;padding:8px 12px;gap:7px}
+  .sidebar-bottom{margin-left:0;gap:13px}
+  .save-status{font-size:9px}
+  .page-header{gap:20px;padding-bottom:23px}
+  h1,.page-header h1{font-size:32px;letter-spacing:-1.5px;line-height:1.25}
+  .page-header p{font-size:12px;line-height:1.7}
+  .page-header>.primary{flex-shrink:0;min-height:45px;padding:11px 16px;font-size:12px}
+  .hero-stickers{margin-right:8px;gap:12px;transform:scale(.85);transform-origin:center right}
+  .room-intro{gap:15px;padding-bottom:14px}
+  .room-label{font-size:12px}
+  .flow-legend{gap:7px;font-size:10px}
+  .room-topline{padding:0 18px;gap:12px}
+  .handwritten{font-size:10px;letter-spacing:.6px}
+  .room-tip{font-size:10px;line-height:1.6}
+  .workspace{width:100%;min-width:0}
+  .scene-nav{height:64px;padding:0 18px;gap:9px;min-width:0}
+  .scene-step{min-height:38px;padding:8px 10px;font-size:11px;gap:6px}
+  .scene-arrows{gap:8px;margin-left:auto}
+  .scene-arrows button{width:36px;height:36px;flex-shrink:0}
+  .scene-counter{font-size:10px;letter-spacing:.5px}
+  .swipe-hint{font-size:10px;margin-left:2px;white-space:nowrap}
+  .stations{width:100%;min-width:0;gap:0;padding:0}
+  .stations>.station{flex:0 0 100%;width:100%;min-width:100%;max-width:100%;height:510px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:45px 37px minmax(0,1fr) 39px;column-gap:24px;padding:27px 24px 25px}
+  .station-heading h2{font-size:23px;padding:7px 12px}
+  .station-caption{font-size:11px;line-height:1.6;margin-left:26px}
+  .basket-scene{width:100%;max-width:390px;height:302px}
+  .basket-clothes{padding-left:8px;padding-right:10px}
+  .basket-clothes>.cloth{width:163px;height:184px}
+  .basket-art{max-width:345px}
+  .ready-tray,.reference-tray{width:100%;max-width:385px;min-width:0;padding:18px 16px 15px}
+  .tray-heading h3{font-size:15px}
+  .ready-tray>p,.reference-tray>p{font-size:11px;line-height:1.6}
+  .compact-note{gap:7px}
+  .compact-note .compact-open{font-size:12px;min-width:0}
+  .compact-note .compact-handle{min-width:28px;min-height:36px}
+  .washer-scene{width:320px;height:345px;max-width:none;aspect-ratio:320/345}
+  .washer-loading-area{width:100%;max-width:405px;min-width:0;max-height:360px;padding:15px 14px 13px}
+  .washer-loading-area h3{font-size:15px}
+  .washer-loading-notes{padding-left:3px;padding-right:3px;gap:6px}
+  .washer-loading-notes>.cloth{width:142px;height:160px;flex-basis:142px}
+  .washer-loading-area #washer-actions{gap:7px}
+  .washer-loading-area #washer-actions button{min-height:40px;font-size:12px}
+  .rack-scene{width:100%;max-width:400px;height:335px}
+  .rack-notes{padding-left:8px}
+  .rack-notes>.cloth{width:180px;height:203px}
+  .fabric-hem{min-height:24px}
+  .compact-note .fabric-hem,.washing-cloth .fabric-hem{min-height:24px}
+  .archive-section{width:100%;min-width:0;margin-top:25px}
+  .archive-heading{gap:16px;align-items:flex-start}
+  .archive-title{flex:1;min-width:0;flex-wrap:wrap}
+  .archive-title h2{font-size:17px}
+  .archive-caption{font-size:11px;line-height:1.7;margin-left:0}
+  .folded-notes{width:100%;min-width:0;gap:18px}
+  .folded-note[data-cloth-surface]{max-width:100%;min-width:0}
+  .folded-note.is-unfolded[data-cloth-surface]{width:min(530px,100%);flex-basis:min(530px,100%);max-width:100%;min-width:0;grid-template-columns:180px minmax(0,1fr)}
+  .unfolded-memo{min-width:0;overflow-wrap:anywhere}
+  .page-footer{gap:18px;font-size:10px;line-height:1.7}
+  .toast{max-width:calc(100vw - 44px)}
+}
+@media (min-width:768px) and (max-width:1024px){
+  .hero-stickers{display:none}
+  .page-header>div:first-child{min-width:0}
+  .archive-caption{flex-basis:100%}
+}
+@media (min-width:768px) and (max-width:900px){
+  .save-status{display:none}
+  .sidebar{gap:14px}
+  .nav-item{padding-left:10px;padding-right:10px}
+  .swipe-hint{display:none}
+  .room-topline .handwritten{font-size:9px;letter-spacing:.3px}
+  .room-tip{font-size:9px;max-width:310px;text-align:right}
+}
