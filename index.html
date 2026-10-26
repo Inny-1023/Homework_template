@@ -244,10 +244,10 @@
         <button
           class="nav-item"
           role="tab"
-          data-target="SPIN"
-          onclick="loadHomework('SPIN', this)"
+          data-target="fold-and-flow"
+          onclick="loadHomework('fold-and-flow', this)"
         >
-          SPIN
+          Fold and Flow
         </button>
       </nav>
     </header>
@@ -261,10 +261,7 @@
       // 메뉴 클릭 시 iframe에 해당 폴더의 index.html 로드 및 활성 탭 갱신
       function loadHomework(folderName, element) {
         const viewer = document.getElementById("viewer");
-        const targetSrc =
-          folderName === "SPIN"
-            ? "SPIN/public/index.html"
-            : folderName + "/index.html";
+        const targetSrc = folderName + "/index.html";
 
         // 활성화된 탭 스타일 갱신
         document.querySelectorAll(".nav-item").forEach(function (btn) {
